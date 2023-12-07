@@ -2,8 +2,7 @@ const assert = require('assert');
 const axios = require('axios');
 const env = require('dotenv');
 const fs = require('fs');
-
-env.config()
+const path = require('path')
 
 const isTesting = process.argv[2] === 'test';
 
@@ -13,16 +12,20 @@ const OP_MESSAGES = {
     CACHE_INPUT: 'writing input to local cache'
 }
 
+try {
+    const confPath = path.resolve(__dirname, './.env');
+    env.config({ path: confPath });
+    
+    console.log(`Success: ${OP_MESSAGES.READ_CONF}: from ${confPath}`);
+} catch (err) {
+    console.log(`Error: ${OP_MESSAGES.READ_CONF}: ${err}`);
+}
+
 function engine({
     day,
     parts
 }) {
     this.run = () => {
-        if (!this.year) {
-            console.error(`Error: ${OP_MESSAGES.READ_CONF}: missing value for EVENT_YEAR`)
-            return;
-        }
-
         this.getInput()
             .then(() => {
                 this.out()
@@ -31,7 +34,7 @@ function engine({
 
     this.input = {
         year: process.env.EVENT_YEAR,
-        url: `https://adventofcode.com/${this.year}/day/${day}/input`,
+        url: `https://adventofcode.com/${process.env.EVENT_YEAR}/day/${day}/input`,
         data: {}
     }
 

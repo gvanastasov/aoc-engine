@@ -5,10 +5,8 @@ A simple engine for running automation on fetching, solving and publishing [Adve
 1. Access AOC
 2. Create local config
 ```sh
-# copy and rename config template
-scp .env.temp .env
-
-# write (or via editor)
+# copy and rename config template from .env.temp
+# or write (add values)
 echo "SESSION=" > .env
 echo "EVENT_YEAR=" >> .env
 echo "CACHE_INPUT=true" >> .env
