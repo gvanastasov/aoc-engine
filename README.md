@@ -10,7 +10,8 @@ scp .env.temp .env
 
 # write (or via editor)
 echo "SESSION=" > .env
-echo "EVENT_YEAR=" > .env
+echo "EVENT_YEAR=" >> .env
+echo "CACHE_INPUT=true" >> .env
 ```
 > Note: SESSION is the value of your session cookie once you authenticate towards AOC (in any browser)
 

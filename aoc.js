@@ -1,11 +1,17 @@
 const assert = require('assert');
 const axios = require('axios');
 const env = require('dotenv');
-const path = require('path')
+const path = require('path');
+const fs = require('fs');
 
-env.config({ path: path.resolve(__dirname, './.env') })
+env.config()
 
 const isTesting = process.argv[2] === 'test';
+
+const OP_MESSAGES = {
+    FETCH_INPUT: 'fetching input',
+    CACHE_INPUT: 'writing input to local cache'
+}
 
 function engine({
     day,
@@ -39,12 +45,23 @@ function engine({
     }
 
     this.handleInput = (res) => {
-        console.log('Success: data fetching')
+        console.log(`Success: ${OP_MESSAGES.FETCH_INPUT}`)
         this.input.data = res.data;
     }
 
     this.handleError = (err) => {
-        console.error('Error: ', err);
+        console.error(`Error: ${OP_MESSAGES.FETCH_INPUT}: HTTP - ${err.response.status}`);
+    }
+
+    this.cacheInput = (input) => {
+        const filePath = "example.txt";
+        return fs.writeFileSync(filePath, input, (err) => {
+            if (err) {
+                console.error(`Error: ${OP_MESSAGES.CACHE_INPUT}`)
+            } else {
+                console.log(`Success: ${OP_MESSAGES.CACHE_INPUT}`);
+            }
+        })
     }
 
     this.out = () => {
