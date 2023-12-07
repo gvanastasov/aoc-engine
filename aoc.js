@@ -1,7 +1,6 @@
 const assert = require('assert');
 const axios = require('axios');
 const env = require('dotenv');
-const path = require('path');
 const fs = require('fs');
 
 env.config()
@@ -9,6 +8,7 @@ env.config()
 const isTesting = process.argv[2] === 'test';
 
 const OP_MESSAGES = {
+    READ_CONF: 'reading config',
     FETCH_INPUT: 'fetching input',
     CACHE_INPUT: 'writing input to local cache'
 }
@@ -18,6 +18,11 @@ function engine({
     parts
 }) {
     this.run = () => {
+        if (!this.year) {
+            console.error(`Error: ${OP_MESSAGES.READ_CONF}: missing value for EVENT_YEAR`)
+            return;
+        }
+
         this.getInput()
             .then(() => {
                 this.out()
@@ -25,7 +30,8 @@ function engine({
     }
 
     this.input = {
-        url: `https://adventofcode.com/${process.env.EVENT_YEAR}/day/${day}/input`,
+        year: process.env.EVENT_YEAR,
+        url: `https://adventofcode.com/${this.year}/day/${day}/input`,
         data: {}
     }
 
