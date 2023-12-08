@@ -1,5 +1,5 @@
 # Advent of Code (AOC) Engine
-A simple engine for running automation on fetching, solving and publishing [Advent of Code](https://adventofcode.com/).
+A simple engine for running automation on fetching, testing and posting answers in [Advent of Code](https://adventofcode.com/).
 
 ## Getting Started
 1. Access AOC
