@@ -13,6 +13,7 @@ echo "CACHE_INPUT=true" >> .env
 ```
 > Note: SESSION is the value of your session cookie once you authenticate towards AOC (in any browser)
 
+> Note: CACHE_INPUT will store the input locally in .txt file. REMINDER: due to copy write, input is not allowed for distrubtion as well, so make sure you have a .gitignore (or whatever VCS you use) for `input.txt`.
 4. Create a day runner
 
 ```js
