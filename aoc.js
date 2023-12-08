@@ -9,7 +9,8 @@ const isTesting = process.argv[2] === 'test';
 const OP_MESSAGES = {
     READ_CONF: 'reading config',
     FETCH_INPUT: 'fetching input',
-    CACHE_INPUT: 'writing input to local cache'
+    CACHE_INPUT: 'writing input to local cache',
+    CACHE_READ: 'reading input from local cache'
 }
 
 try {
@@ -34,6 +35,9 @@ function engine({
     }
 
     this.run = () => {
+        console.log(`Running: AOC ${this.props.year}: day ${day}`);
+        console.log(`Configuration: ${ isTesting ? 'test' : 'production' }`);
+
         this.getInput()
             .then(() => {
                 this.out()
@@ -45,8 +49,20 @@ function engine({
             return Promise.resolve();
         }
 
+        try {
+            const cacheFilePath = path.join(module.parent.path, "input.txt");
+            if (fs.existsSync(cacheFilePath)) {
+                const cacheContent = fs.readFileSync(cacheFilePath, 'utf-8');
+                this.props.input = cacheContent;
+                console.log(`Success: ${OP_MESSAGES.CACHE_READ}`);
+                return Promise.resolve();
+            }
+        } catch (err) {
+            console.error(`Error: ${OP_MESSAGES.CACHE_READ}: ${err}`)
+        }
+
         return axios
-            .get(this.links.fetchInput.url, {
+            .get(this.props.links.fetchInput, {
                 headers: {
                     Cookie: `session=${process.env.SESSION}`
                 }
@@ -60,7 +76,7 @@ function engine({
         if (Boolean(process.env.CACHE_INPUT)) {
             this.cacheInput(res.data);
         }
-        this.input.data = res.data;
+        this.props.input = res.data;
     }
 
     this.handleError = (err) => {
@@ -79,8 +95,6 @@ function engine({
     }
 
     this.out = () => {
-        console.log(`Configuration: ${ isTesting ? 'test' : 'production' }`);
-
         if (parts.length === 0) {
             console.error("Error: no parts provided.");
         }
@@ -95,7 +109,7 @@ function engine({
 
         let input = isTesting && part.test && part.test.in
             ? part.test.in
-            : this.input.data
+            : this.props.input
         
         if (part.parse) {
             input = part.parse(input)
