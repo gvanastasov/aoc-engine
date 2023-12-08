@@ -25,17 +25,19 @@ function engine({
     day,
     parts
 }) {
+    this.props = {
+        year: process.env.EVENT_YEAR,
+        links: {
+            fetchInput: `https://adventofcode.com/${process.env.EVENT_YEAR}/day/${day}/input`
+        },
+        input: undefined
+    }
+
     this.run = () => {
         this.getInput()
             .then(() => {
                 this.out()
             });
-    }
-
-    this.input = {
-        year: process.env.EVENT_YEAR,
-        url: `https://adventofcode.com/${process.env.EVENT_YEAR}/day/${day}/input`,
-        data: {}
     }
 
     this.getInput = () => {
@@ -44,7 +46,7 @@ function engine({
         }
 
         return axios
-            .get(this.input.url, {
+            .get(this.links.fetchInput.url, {
                 headers: {
                     Cookie: `session=${process.env.SESSION}`
                 }
