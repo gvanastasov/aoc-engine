@@ -4,7 +4,24 @@ const env = require('dotenv');
 const fs = require('fs');
 const path = require('path')
 
-const isTesting = process.argv[2] === 'test';
+const args = (() => {
+    let result = {
+        isTesting: false,
+    };
+    let args = process.argv.slice(2);
+
+    args.forEach(arg => {
+        if (arg === 'test') {
+          result.isTesting = true;
+        }
+      
+        if (arg.startsWith('cache=')) {
+          result.cache = arg.split('=')[1];
+        }
+      });
+
+    return result;
+})();
 
 const OP_MESSAGES = {
     READ_CONF: 'reading config',
@@ -36,7 +53,7 @@ function engine({
 
     this.run = () => {
         console.log(`Running: AOC ${this.props.year}: day ${day}`);
-        console.log(`Configuration: ${ isTesting ? 'test' : 'production' }`);
+        console.log(`Configuration: ${ args.isTesting ? 'test' : 'production' }`);
 
         this.getInput()
             .then(() => {
@@ -45,20 +62,22 @@ function engine({
     }
 
     this.getInput = () => {
-        if (isTesting) {
+        if (args.isTesting) {
             return Promise.resolve();
         }
 
-        try {
-            const cacheFilePath = path.join(module.parent.path, "input.txt");
-            if (fs.existsSync(cacheFilePath)) {
-                const cacheContent = fs.readFileSync(cacheFilePath, 'utf-8');
-                this.props.input = cacheContent;
-                console.log(`Success: ${OP_MESSAGES.CACHE_READ}`);
-                return Promise.resolve();
+        if (args.cache !== 'ignore') {
+            try {
+                const cacheFilePath = path.join(module.parent.path, "input.txt");
+                if (fs.existsSync(cacheFilePath)) {
+                    const cacheContent = fs.readFileSync(cacheFilePath, 'utf-8');
+                    this.props.input = cacheContent;
+                    console.log(`Success: ${OP_MESSAGES.CACHE_READ}`);
+                    return Promise.resolve();
+                }
+            } catch (err) {
+                console.error(`Error: ${OP_MESSAGES.CACHE_READ}: ${err}`)
             }
-        } catch (err) {
-            console.error(`Error: ${OP_MESSAGES.CACHE_READ}: ${err}`)
         }
 
         return axios
@@ -107,7 +126,7 @@ function engine({
             return;
         }
 
-        let input = isTesting && part.test && part.test.in
+        let input = args.isTesting && part.test && part.test.in
             ? part.test.in
             : this.props.input
         
@@ -117,7 +136,7 @@ function engine({
 
         let result = part.resolve(input);
         
-        if (isTesting) {
+        if (args.isTesting) {
             assert.strictEqual(result, part.test.out, "Error: test data failed")
             console.log(`Expected: ${part.test.out}, Actual: ${result}`);
         } else {
