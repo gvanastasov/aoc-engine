@@ -55,6 +55,9 @@ function engine({
 
     this.handleInput = (res) => {
         console.log(`Success: ${OP_MESSAGES.FETCH_INPUT}`)
+        if (Boolean(process.env.CACHE_INPUT)) {
+            this.cacheInput(res.data);
+        }
         this.input.data = res.data;
     }
 
@@ -63,7 +66,7 @@ function engine({
     }
 
     this.cacheInput = (input) => {
-        const filePath = "example.txt";
+        let filePath = path.join(module.parent.path, "input.txt");
         return fs.writeFileSync(filePath, input, (err) => {
             if (err) {
                 console.error(`Error: ${OP_MESSAGES.CACHE_INPUT}`)
